@@ -69,7 +69,7 @@ export default function AppNavbar() {
               >
                 <Button 
                   as={Link} 
-                  to="/auth" 
+                  to="/login" 
                   variant="primary"
                   className="login-button"
                 >

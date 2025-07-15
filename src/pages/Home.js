@@ -55,7 +55,7 @@ export default function Home() {
                 >
                   <Button 
                     as={Link} 
-                    to="/auth" 
+                    to="/login" 
                     className="cta-button"
                     size="lg"
                   >

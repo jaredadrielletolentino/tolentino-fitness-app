@@ -10,7 +10,7 @@ import Loading from './components/Loading';
 
 function App() {
   const [user, setUser] = useState({ id: null });
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   const logout = useCallback(() => {
     localStorage.removeItem('token');
@@ -40,14 +40,13 @@ function App() {
         logout();
       })
       .finally(() => {
-        setIsLoading(false); // Set loading to false when done
+        setIsLoading(false);
       });
     } else {
-      setIsLoading(false); // Set loading to false if no token
+      setIsLoading(false);
     }
   }, [logout]);
 
-  // Don't render anything until auth check is complete
   if (isLoading) {
     return <Loading />;
   }
@@ -59,10 +58,9 @@ function App() {
         <div className="app-content">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/auth" element={user.id ? <Navigate to="/workouts" replace /> : <AuthPage />} />
-            <Route path="/login" element={<Navigate to="/auth" replace />} />
-            <Route path="/register" element={<Navigate to="/auth" replace />} />
-            <Route path="/workouts" element={user.id ? <Workouts /> : <Navigate to="/auth" replace />} />
+            <Route path="/register" element={user.id ? <Navigate to="/workouts" replace /> : <AuthPage isLogin={false} />} />
+            <Route path="/login" element={user.id ? <Navigate to="/workouts" replace /> : <AuthPage isLogin={true} />} />
+            <Route path="/workouts" element={user.id ? <Workouts /> : <Navigate to="/login" replace />} />
             <Route path="/logout" element={<Logout />} />
           </Routes>
         </div>
