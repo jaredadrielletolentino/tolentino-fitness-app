@@ -1,68 +1,105 @@
-import { Card, Button, Badge } from 'react-bootstrap';
-import { useEffect, useRef } from 'react';
+import { Card, Button } from 'react-bootstrap';
+import { Notyf } from 'notyf';
 
-export const WorkoutCard = ({ workout, onDelete, onComplete, onUpdate, animationDelay = 0 }) => {
-    const cardRef = useRef(null);
-    
-    useEffect(() => {
-        const card = cardRef.current;
-        if (card) {
-            card.style.animationDelay = `${animationDelay}s`;
+export default function WorkoutCard({ workout, fetchWorkouts, onEditWorkout }) {
+  const notyf = new Notyf();
+
+  const deleteWorkout = () => {
+    if (window.confirm('Are you sure you want to delete this workout?')) {
+      fetch(`https://fitnesstrackappapi.onrender.com/workouts/deleteWorkout/${workout._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
         }
-    }, [animationDelay]);
+      })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Delete failed');
+        }
+      })
+      .then(data => {
+        if (data.message === 'Workout deleted successfully') {
+          notyf.success('Workout deleted successfully!');
+          fetchWorkouts();
+        } else {
+          notyf.error('Failed to delete workout');
+        }
+      })
+      .catch(err => {
+        console.error('Delete error:', err);
+        notyf.error('An error occurred while deleting workout');
+      });
+    }
+  };
 
-    return (
-        <Card 
-            ref={cardRef}
-            className={`workout-card ${workout.status === 'completed' ? 'completed' : ''}`}
-        >
-            <Card.Body className="p-3">
-                <div className="d-flex justify-content-between align-items-start mb-2">
-                    <Card.Title className="workout-title mb-0">{workout.name}</Card.Title>
-                    <Badge 
-                        bg={workout.status === 'completed' ? 'success' : 'warning'}
-                        className="status-badge"
-                    >
-                        {workout.status}
-                    </Badge>
-                </div>
-                
-                <Card.Subtitle className="text-muted mb-2">
-                    Duration: {workout.duration} minutes
-                </Card.Subtitle>
-                
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <small className="text-muted">
-                        {new Date(workout.dateAdded).toLocaleDateString()}
-                    </small>
-                </div>
-                
-                <div className="d-flex gap-2">
-                    {workout.status !== 'completed' && (
-                        <Button 
-                            variant="outline-success" 
-                            size="sm"
-                            onClick={() => onComplete(workout._id)}
-                        >
-                            <i className="fas fa-check me-1"></i> Complete
-                        </Button>
-                    )}
-                    <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                        onClick={() => onUpdate(workout)}
-                    >
-                        <i className="fas fa-edit me-1"></i> Edit
-                    </Button>
-                    <Button 
-                        variant="outline-danger" 
-                        size="sm"
-                        onClick={() => onDelete(workout._id)}
-                    >
-                        <i className="fas fa-trash me-1"></i> Delete
-                    </Button>
-                </div>
-            </Card.Body>
-        </Card>
-    );
-};
+  const completeWorkout = () => {
+    fetch(`https://fitnesstrackappapi.onrender.com/workouts/completeWorkoutStatus/${workout._id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw new Error('Complete failed');
+      }
+    })
+    .then(data => {
+      if (data.message === 'Workout status updated successfully' || data.updatedWorkout) {
+        notyf.success('Workout marked as completed!');
+        fetchWorkouts();
+      } else {
+        notyf.error('Failed to update workout status');
+      }
+    })
+    .catch(err => {
+      console.error('Complete error:', err);
+      notyf.error('An error occurred while updating workout status');
+    });
+  };
+
+  return (
+    <Card className="mb-3">
+      <Card.Body>
+        <Card.Title>{workout.name}</Card.Title>
+        <Card.Text>
+          Duration: {workout.duration} minutes<br />
+          Status: <span className={`badge ${workout.status === 'completed' ? 'bg-success' : 'bg-warning'}`}>
+            {workout.status}
+          </span><br />
+          Date: {new Date(workout.dateAdded).toLocaleDateString()}
+        </Card.Text>
+        <div className="d-flex gap-2">
+          <Button 
+            variant="success" 
+            onClick={completeWorkout} 
+            disabled={workout.status === 'completed'}
+            size="sm"
+          >
+            {workout.status === 'completed' ? 'Completed' : 'Mark Complete'}
+          </Button>
+          <Button 
+            variant="warning" 
+            onClick={() => onEditWorkout(workout)}
+            size="sm"
+          >
+            Edit
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={deleteWorkout} 
+            size="sm"
+          >
+            Delete
+          </Button>
+        </div>
+      </Card.Body>
+    </Card>
+  );
+}
