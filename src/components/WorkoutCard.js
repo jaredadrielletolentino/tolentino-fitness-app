@@ -1,4 +1,5 @@
 import { Card, Button } from 'react-bootstrap';
+import { motion } from 'framer-motion';
 import { Notyf } from 'notyf';
 
 export default function WorkoutCard({ workout, fetchWorkouts, onEditWorkout }) {
@@ -65,41 +66,55 @@ export default function WorkoutCard({ workout, fetchWorkouts, onEditWorkout }) {
   };
 
   return (
-    <Card className="mb-3">
-      <Card.Body>
-        <Card.Title>{workout.name}</Card.Title>
-        <Card.Text>
-          Duration: {workout.duration} minutes<br />
-          Status: <span className={`badge ${workout.status === 'completed' ? 'bg-success' : 'bg-warning'}`}>
-            {workout.status}
-          </span><br />
-          Date: {new Date(workout.dateAdded).toLocaleDateString()}
-        </Card.Text>
-        <div className="d-flex gap-2">
-          <Button 
-            variant="success" 
-            onClick={completeWorkout} 
-            disabled={workout.status === 'completed'}
-            size="sm"
-          >
-            {workout.status === 'completed' ? 'Completed' : 'Mark Complete'}
-          </Button>
-          <Button 
-            variant="warning" 
-            onClick={() => onEditWorkout(workout)}
-            size="sm"
-          >
-            Edit
-          </Button>
-          <Button 
-            variant="danger" 
-            onClick={deleteWorkout} 
-            size="sm"
-          >
-            Delete
-          </Button>
-        </div>
-      </Card.Body>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ y: -5 }}
+    >
+      <Card className="workout-card">
+        <Card.Body>
+          <Card.Title className="card-title">{workout.name}</Card.Title>
+          <Card.Text className="card-text">
+            <strong>Duration:</strong> {workout.duration} minutes<br />
+            <strong>Status:</strong> 
+            <span className={`status-badge ms-2 ${workout.status === 'completed' ? 'status-completed' : 'status-pending'}`}>
+              {workout.status}
+            </span><br />
+            <strong>Date:</strong> {new Date(workout.dateAdded).toLocaleDateString()}
+          </Card.Text>
+          <div className="button-group">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                className="btn-action btn-success" 
+                onClick={completeWorkout} 
+                disabled={workout.status === 'completed'}
+                size="sm"
+              >
+                {workout.status === 'completed' ? '✓ Completed' : 'Mark Complete'}
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                className="btn-action btn-warning" 
+                onClick={() => onEditWorkout(workout)}
+                size="sm"
+              >
+                ✏️ Edit
+              </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button 
+                className="btn-action btn-danger" 
+                onClick={deleteWorkout} 
+                size="sm"
+              >
+                🗑️ Delete
+              </Button>
+            </motion.div>
+          </div>
+        </Card.Body>
+      </Card>
+    </motion.div>
   );
 }

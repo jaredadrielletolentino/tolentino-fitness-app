@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AppNavbar from './components/AppNavbar';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import AuthPage from './pages/AuthPage';
 import Workouts from './pages/Workouts';
 import Logout from './pages/Logout';
 import UserContext from './context/UserContext';
@@ -57,13 +56,16 @@ function App() {
     <UserContext.Provider value={{ user, setUser, logout }}>
       <Router>
         <AppNavbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={user.id ? <Navigate to="/workouts" replace /> : <Login />} />
-          <Route path="/register" element={user.id ? <Navigate to="/workouts" replace /> : <Register />} />
-          <Route path="/workouts" element={user.id ? <Workouts /> : <Navigate to="/login" replace />} />
-          <Route path="/logout" element={<Logout />} />
-        </Routes>
+        <div className="app-content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={user.id ? <Navigate to="/workouts" replace /> : <AuthPage />} />
+            <Route path="/login" element={<Navigate to="/auth" replace />} />
+            <Route path="/register" element={<Navigate to="/auth" replace />} />
+            <Route path="/workouts" element={user.id ? <Workouts /> : <Navigate to="/auth" replace />} />
+            <Route path="/logout" element={<Logout />} />
+          </Routes>
+        </div>
       </Router>
     </UserContext.Provider>
   );
