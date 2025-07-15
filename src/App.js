@@ -20,7 +20,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('https://fitnesstrackappapi.onrender.com/users/profile', {
+      fetch('https://fitnesstrackappapi.onrender.com/users/details', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
